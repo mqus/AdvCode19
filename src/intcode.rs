@@ -1,15 +1,18 @@
 use std::io::{BufReader, stdin, BufRead};
 use std::collections::VecDeque;
+use std::collections::hash_map::IntoIter;
 
-pub struct Machine{
-	memory:Vec<Integer>,
-	pc:Option<usize>,
-	relative_base:Integer,
-	pub instruction_counter:u32,
+
+#[derive(Clone)]
+pub struct Machine {
+	memory: Vec<Integer>,
+	pc: Option<usize>,
+	relative_base: Integer,
+	pub instruction_counter: u32,
 }
 
 const MEMSIZE:usize=16*1024*1024;
-type Integer=i64;
+pub type Integer=i64;
 
 impl Machine{
 
@@ -64,8 +67,6 @@ impl Machine{
 		m
 	}
 
-
-
 	pub fn run_to_output(&mut self,input:&mut VecDeque<Integer>) ->Option<Integer>{
 		while !self.is_done(){
 			if let Some(o)=self.execute_step(input){
@@ -75,7 +76,7 @@ impl Machine{
 		None
 	}
 
-	pub fn intcode_run_once(&mut self,mut input:VecDeque<Integer>) -> Integer{
+	pub fn run_once(&mut self,mut input:VecDeque<Integer>) -> Integer{
 		let mut out=-1;
 		while !self.is_done(){
 			if let Some(o)=self.execute_step(&mut input){
@@ -116,7 +117,7 @@ impl Machine{
 				None
 			}
 			3 => { // INPUT
-				let val=input.pop_front().unwrap();
+				let val=input.pop_front().expect("got no input!");
 				self.write(mode1,pc+1,val);
 				self.pc = Some(pc +2);
 				None
@@ -211,4 +212,31 @@ impl Machine{
 	pub fn set_mem(&mut self,pos:usize, val:Integer){
 		self.memory[pos]=val
 	}
+
+	pub fn into_iter(&mut self) -> Iter {
+		Iter{
+			m: self,
+			input: VecDeque::new()
+		}
+	}
 }
+
+pub struct Iter<'a>{
+	pub(crate) m:&'a mut Machine,
+	input:VecDeque<Integer>
+}
+
+impl Iterator for Iter<'_>{
+	type Item = Integer;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		self.m.run_to_output(&mut self.input)
+	}
+}
+
+impl Iter<'_>{
+	pub fn push(&mut self,i:Integer){
+		self.input.push_back(i);
+	}
+}
+
