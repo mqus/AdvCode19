@@ -718,8 +718,15 @@ mod d11;
 mod d12;
 mod d13;
 mod d14;
+mod d15;
+mod d16;
 
-#[cfg(any(feature = "d11_1", feature = "d11_2", feature = "d12_1", feature = "d12_2", feature = "d13_1", feature = "d13_2", feature = "d14_1", feature = "d14_2"))]
+#[cfg(any(feature = "d11_1", feature = "d11_2",
+feature = "d12_1", feature = "d12_2",
+feature = "d13_1", feature = "d13_2",
+feature = "d14_1", feature = "d14_2",
+feature = "d16_1", feature = "d16_2",
+feature = "d15_1", feature = "d15_2"))]
 fn main() {
 	#[cfg(any(feature = "d11_1", feature = "d11_2"))]
 			d11::run();
@@ -729,4 +736,8 @@ fn main() {
 			d13::run();
 	#[cfg(any(feature = "d14_1", feature = "d14_2"))]
 			d14::run();
+	#[cfg(any(feature = "d15_1", feature = "d15_2"))]
+			d15::run();
+	#[cfg(any(feature = "d16_1", feature = "d16_2"))]
+			d16::run();
 }
